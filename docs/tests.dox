@@ -1,0 +1,102 @@
+/**
+ * @page tests_page Test Sources and Rationale
+ *
+ * This page explains why each test exists and what real failure mode it is
+ * trying to detect.
+ *
+ * @section test_drain_section test_drain.c
+ *
+ * Purpose:
+ * - prove that drain shutdown executes all queued work
+ *
+ * Real bug class covered:
+ * - premature worker exit
+ * - jobs being dropped during graceful shutdown
+ *
+ * Method:
+ * - submit 100 short jobs
+ * - call drain shutdown
+ * - assert that the final execution counter is 100
+ *
+ * @section test_poison_section test_poison_semantics.c
+ *
+ * Purpose:
+ * - validate the shutdown semantics usually described as "poison" behavior
+ *
+ * Real bug class covered:
+ * - accepting new jobs after shutdown
+ * - workers not leaving the loop consistently after shutdown
+ *
+ * Method:
+ * - queue work
+ * - drain the pool
+ * - assert that new submissions are rejected afterwards
+ *
+ * @section test_queue_overflow_section test_queue_overflow.c
+ *
+ * Purpose:
+ * - validate bounded queue behavior
+ *
+ * Real bug class covered:
+ * - unbounded queue growth
+ * - denial of service through unchecked producer pressure
+ *
+ * Method:
+ * - create a tiny queue
+ * - submit slow jobs
+ * - verify that queue-full is eventually reported
+ *
+ * @section test_immediate_section test_immediate_shutdown.c
+ *
+ * Purpose:
+ * - validate immediate shutdown and destructor behavior
+ *
+ * Real bug class covered:
+ * - memory leaks for discarded jobs
+ * - queued jobs surviving immediate shutdown unexpectedly
+ *
+ * Method:
+ * - queue many jobs with heap-allocated arguments
+ * - perform immediate shutdown
+ * - verify that queued-job destructors were invoked
+ *
+ * @section test_timeout_section test_timeout.c
+ *
+ * Purpose:
+ * - validate timed shutdown behavior
+ *
+ * Real bug class covered:
+ * - blocking forever waiting for drain completion
+ *
+ * Method:
+ * - queue a slow job
+ * - request shutdown with an unrealistically small timeout
+ * - assert timeout return code
+ *
+ * @section test_blocking_submit_section test_blocking_submit.c
+ *
+ * Purpose:
+ * - validate producer backpressure
+ *
+ * Real bug class covered:
+ * - broken condition signaling for queue-space availability
+ * - blocking producers never waking up
+ *
+ * Method:
+ * - fill a small queue
+ * - start another producer thread using blocking submit
+ * - verify the producer eventually succeeds
+ *
+ * @section test_stats_section test_stats.c
+ *
+ * Purpose:
+ * - validate metrics consistency
+ *
+ * Real bug class covered:
+ * - counters drifting from actual behavior
+ *
+ * Method:
+ * - submit a known number of jobs
+ * - drain the pool
+ * - verify submitted and executed counters
+ */

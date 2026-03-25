@@ -1,0 +1,72 @@
+/**
+ * @mainpage OrangePool Documentation
+ *
+ * @section overview Overview
+ *
+ * OrangePool is a pthread-based bounded thread pool implemented in C.
+ *
+ * Main goals:
+ * - explicit lifecycle
+ * - bounded queue behavior
+ * - predictable shutdown semantics
+ * - testable concurrency behavior
+ * - low-level systems programming clarity
+ *
+ * @section contract Public API Contract
+ *
+ * The main contract of OrangePool is:
+ *
+ * - producers may submit jobs concurrently
+ * - workers consume jobs from a FIFO pending queue
+ * - drain shutdown waits for both:
+ *   - the queue to become empty
+ *   - all active jobs to finish
+ * - immediate shutdown discards queued but not yet started work
+ * - argument destructors are used only for discarded pending jobs
+ *
+ * @section ownership Ownership Rules
+ *
+ * Ownership is intentionally explicit:
+ *
+ * - If a task runs, the task itself owns the lifetime of its argument.
+ * - If a task never runs and is discarded during immediate shutdown, the pool
+ *   invokes the per-job destructor if one was provided.
+ * - The pool always owns the internal queue node objects.
+ *
+ * @section threadsafety Thread Safety
+ *
+ * OrangePool is thread-safe for:
+ *
+ * - orangepool_submit()
+ * - orangepool_submit_blocking()
+ * - orangepool_shutdown()
+ * - orangepool_shutdown_timeout()
+ * - orangepool_get_stats()
+ *
+ * OrangePool is not logically safe to use after destruction begins.
+ *
+ * Internal synchronization uses:
+ * - one mutex
+ * - one condition for new jobs
+ * - one condition for queue space
+ * - one condition for full drain completion
+ *
+ * @section shutdown_behavior Shutdown Behavior
+ *
+ * Drain shutdown:
+ * - reject new jobs
+ * - keep processing queued jobs
+ * - wait until pending == 0 and active_jobs == 0
+ * - let workers exit
+ *
+ * Immediate shutdown:
+ * - reject new jobs
+ * - discard queued jobs immediately
+ * - invoke destructors for discarded queued jobs
+ * - do not forcibly cancel already running tasks
+ *
+ * @section navigation Navigation
+ *
+ * - See @ref example_usage for the practical PoC.
+ * - See @ref tests_page for the rationale behind each test source.
+ */

@@ -1,3 +1,7 @@
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Language](https://img.shields.io/badge/C-pthreads-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 # OrangePool 🟠
 
 A high-performance thread pool in C using pthreads, designed for

@@ -21,6 +21,8 @@ predictable behavior, strong shutdown semantics, and low-level control.
 -   Runtime metrics (stats)
 -   Fully tested concurrency behavior
 -   Doxygen documentation
+-   Destroy detection by Magic number for debug purpose
+-   CPU affinity (just for linux)
 
 ------------------------------------------------------------------------
 
